@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyse d'appel — Fer à repasser | TMK Performances</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#eef7f2;padding:1.5rem;min-height:100vh;color:#2c2c2a;line-height:1.55}
+.page{max-width:900px;margin:0 auto}
+
+/* HEADER */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px}
+.tag-rcad{background:white;border:0.5px solid #c8dfd2;border-radius:20px;padding:4px 14px;font-size:11.5px;color:#5a7a6a;letter-spacing:.05em;user-select:none}
+
+/* INTRO */
+.intro{background:white;border-radius:14px;border:0.5px solid #c8dfd2;padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.intro-title{font-size:18px;font-weight:700;color:#1a1a18;margin-bottom:8px;font-family:Georgia,serif}
+.intro-sub{font-size:13px;color:#5a6661;line-height:1.6;margin-bottom:10px}
+.intro-context{background:#f4faf7;border-left:3px solid #2c7a50;border-radius:0 6px 6px 0;padding:11px 14px 11px 18px;font-size:12.5px;color:#2c4a3a;line-height:1.65}
+
+.audio-notice{background:#f4ecf6;border:0.5px solid #d8c8e8;border-radius:10px;padding:11px 15px;display:flex;align-items:center;gap:11px;margin-bottom:1.25rem}
+.audio-notice-icon{font-size:22px;flex-shrink:0}
+.audio-notice-text{font-size:12.5px;color:#5e2b6e;line-height:1.5}
+.audio-notice-text strong{color:#3e1b4e}
+
+/* QUESTION CARDS */
+.qcard{background:white;border:0.5px solid #c8dfd2;border-radius:14px;margin-bottom:1rem;overflow:hidden}
+.qcard-head{background:#f0faf5;padding:12px 18px;display:flex;align-items:center;gap:11px;border-bottom:0.5px solid #c8dfd2}
+.qcard-num{background:#2c7a50;color:white;border-radius:50%;width:30px;height:30px;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Georgia,serif}
+.qcard-title{font-family:Georgia,serif;font-size:16px;font-weight:700;color:#1a1a18;line-height:1.3}
+.qcard-body{padding:16px 18px 18px}
+
+/* Q1 — STEPS */
+.q1-intro{font-size:12px;color:#5a6661;font-style:italic;margin-bottom:12px;padding:8px 12px;background:#fafafa;border-radius:7px;border-left:3px solid #c8dfd2}
+.q1-step{background:#fafafa;border:0.5px solid #e0e4e0;border-radius:10px;padding:12px 14px;margin-bottom:8px;transition:.2s}
+.q1-step.ko{background:#fdf4f3;border-color:#e8b8b3}
+.q1-step-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.q1-step-num{background:#2c7a50;color:white;border-radius:50%;width:24px;height:24px;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;flex-shrink:0;transition:.2s}
+.q1-step.ko .q1-step-num{background:#c44a3a}
+.q1-step-title{font-family:Georgia,serif;font-weight:700;font-size:13.5px;color:#1a1a18}
+.q1-ko-btn{margin-left:auto;padding:4px 11px;font-size:10.5px;background:white;border:1px solid #d8dcd6;border-radius:6px;cursor:pointer;color:#5a6661;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:5px;transition:.15s;letter-spacing:.04em}
+.q1-ko-btn:hover{border-color:#c44a3a;color:#c44a3a}
+.q1-step.ko .q1-ko-btn{background:#c44a3a;color:white;border-color:#c44a3a}
+.q1-step-desc{font-size:10.5px;color:#5a6661;font-style:italic;margin-left:34px;margin-bottom:8px;line-height:1.5}
+.q1-step.ko .q1-step-desc{opacity:.6}
+.q1-textarea{width:100%;padding:9px 12px;border:1px solid #d8dcd6;border-radius:7px;font-family:inherit;font-size:12px;min-height:50px;resize:vertical;background:white;color:#2c2c2a;line-height:1.5}
+.q1-textarea:focus{outline:none;border-color:#2c7a50}
+.q1-step.ko .q1-textarea{background:#fef0ee;border-color:#e8b8b3;color:#c44a3a;font-weight:600;font-style:italic;text-align:center}
+
+/* DYNAMIC NAME INPUT (Q1) */
+.q1-name-input{flex:1;padding:5px 10px;border:1px solid transparent;border-bottom:1.5px dashed #c8dfd2;border-radius:5px;font-family:Georgia,serif;font-size:13.5px;font-weight:700;background:transparent;color:#1a1a18;min-width:0;transition:.15s}
+.q1-name-input::placeholder{font-style:italic;font-weight:400;color:#a8a8a8}
+.q1-name-input:hover{border-bottom-color:#7a9989;background:rgba(255,255,255,.6)}
+.q1-name-input:focus{outline:none;border:1px solid #2c7a50;background:white}
+.q1-step.ko .q1-name-input{color:#c44a3a}
+.q1-step.ko .q1-name-input:focus{border-color:#c44a3a}
+
+/* ADD / REMOVE buttons */
+.add-btn{width:100%;padding:9px;background:white;border:1px dashed #c8dfd2;border-radius:8px;color:#5a7a6a;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px}
+.add-btn:hover{border-color:#2c7a50;color:#2c7a50;background:#f4faf7}
+.remove-btn{width:22px;height:22px;padding:0;background:transparent;border:0;color:#bbb;cursor:pointer;font-size:18px;line-height:1;font-weight:400;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:.15s;flex-shrink:0}
+.remove-btn:hover{background:#fdf4f3;color:#c44a3a}
+.validated .add-btn,
+.validated .remove-btn{display:none}
+
+/* Q2 — FORCES / FAIBLESSES */
+.q2-table{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.q2-table{grid-template-columns:1fr}}
+.q2-col{background:#fafafa;border:0.5px solid #e0e4e0;border-radius:10px;padding:12px 13px}
+.q2-col.plus{border-color:#c8dfd2;background:#f6fcf8}
+.q2-col.minus{border-color:#d8c8e8;background:#fbf8fc}
+.q2-col-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.q2-symbol{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;font-family:Georgia,serif}
+.q2-col.plus .q2-symbol{background:#2c7a50;color:white}
+.q2-col.minus .q2-symbol{background:#7a3b8c;color:white}
+.q2-col-title{font-family:Georgia,serif;font-size:13.5px;font-weight:700}
+.q2-col.plus .q2-col-title{color:#2c7a50}
+.q2-col.minus .q2-col-title{color:#7a3b8c}
+.q2-row{display:flex;gap:7px;margin-bottom:6px;align-items:flex-start}
+.q2-row:last-child{margin-bottom:0}
+.q2-row-num{font-size:10.5px;color:#888;font-weight:600;width:14px;text-align:center;flex-shrink:0;padding-top:8px;font-family:Georgia,serif}
+.q2-input{flex:1;padding:7px 10px;border:1px solid #d8dcd6;border-radius:6px;font-family:inherit;font-size:11.5px;background:white;color:#2c2c2a;min-width:0}
+.q2-input:focus{outline:none;border-color:#2c7a50}
+
+/* Q3 & Q4 — YES/NO + WHY */
+.q34-choice{display:flex;gap:8px;margin-bottom:11px;flex-wrap:wrap}
+.q34-pill{padding:9px 22px;border:1.5px solid #d8dcd6;border-radius:20px;background:white;cursor:pointer;font-size:12.5px;font-weight:600;font-family:inherit;transition:.15s;display:flex;align-items:center;gap:7px;color:#5a6661}
+.q34-pill:hover:not(.selected){border-color:#2c7a50;color:#2c7a50}
+.q34-pill.selected.yes{background:#2c7a50;color:white;border-color:#2c7a50}
+.q34-pill.selected.no{background:#7a3b8c;color:white;border-color:#7a3b8c}
+.q34-label{display:block;font-size:11px;color:#5a6661;font-weight:500;margin-bottom:5px}
+.q34-textarea{width:100%;padding:10px 13px;border:1px solid #d8dcd6;border-radius:7px;font-family:inherit;font-size:12px;min-height:70px;resize:vertical;background:white;color:#2c2c2a;line-height:1.5}
+.q34-textarea:focus{outline:none;border-color:#2c7a50}
+
+/* LOCKED INPUTS */
+.validated input,
+.validated textarea{
+  background:#f4faf7 !important;color:#3a4a3a;
+  border-color:#c8dfd2 !important;font-style:italic;pointer-events:none
+}
+.validated .q34-pill{pointer-events:none;opacity:.85}
+.validated .q1-ko-btn{pointer-events:none;opacity:.7}
+
+/* CORRECTION BLOCK (per question) */
+.correction{display:none;margin-top:14px;border:0.5px solid #c8dfd2;border-radius:10px;overflow:hidden;background:#f8fcfa}
+.validated .correction{display:block}
+.correction-head{background:#2c7a50;color:white;padding:10px 16px;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:9px;letter-spacing:.02em}
+.correction-body{padding:13px 16px 15px}
+.corr-intro{font-size:11.5px;color:#2c4a3a;font-style:italic;margin-bottom:11px;padding:8px 11px;background:white;border-left:3px solid #2c7a50;border-radius:0 6px 6px 0;line-height:1.6}
+
+.corr-q1-step{background:white;border:0.5px solid #e0e4e0;border-radius:7px;padding:10px 12px;margin-bottom:7px}
+.corr-q1-step-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+.corr-q1-step-num{background:#2c7a50;color:white;border-radius:50%;width:20px;height:20px;font-size:10.5px;font-weight:700;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.corr-q1-step-name{font-family:Georgia,serif;font-weight:700;font-size:12.5px;color:#1a1a18;flex:1;min-width:0}
+.corr-q1-verdict{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.4px;text-transform:uppercase;flex-shrink:0;font-family:system-ui,sans-serif;white-space:nowrap}
+.corr-q1-verdict.ok{background:#d4ebdf;color:#1a4a2c}
+.corr-q1-verdict.okr{background:#fdf0d4;color:#7a5a1a}
+.corr-q1-verdict.ko{background:#f8d8d2;color:#7a2a20}
+.corr-q1-block{margin-top:7px}
+.corr-q1-block-label{font-size:9.5px;font-weight:700;color:#5a6661;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.corr-q1-block-text{font-family:Georgia,serif;font-style:italic;font-size:11.5px;padding:7px 11px;border-radius:5px;line-height:1.55;border-left:2px solid #ccc}
+.corr-q1-block-text.expected{background:#f4faf7;color:#1a1a18;border-left-color:#2c7a50}
+.corr-q1-block-text.actual.v-ok{background:#f4faf7;color:#1a1a18;border-left-color:#2c7a50}
+.corr-q1-block-text.actual.v-okr{background:#fdf9f0;color:#5a4a1a;border-left-color:#d4a045}
+.corr-q1-block-text.actual.v-ko{background:#fdf4f3;color:#6a3a2a;border-left-color:#c44a3a}
+.corr-q1-note{font-size:11px;color:#5a6661;line-height:1.55;font-style:italic;margin-top:7px;padding:6px 10px;background:#fafafa;border-radius:5px}
+
+.corr-q2-table{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.corr-q2-table{grid-template-columns:1fr}}
+.corr-q2-col{background:white;border:0.5px solid #e0e4e0;border-radius:7px;padding:9px 11px}
+.corr-q2-col.plus{border-left:3px solid #2c7a50}
+.corr-q2-col.minus{border-left:3px solid #7a3b8c}
+.corr-q2-col-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.corr-q2-col.plus .corr-q2-col-title{color:#2c7a50}
+.corr-q2-col.minus .corr-q2-col-title{color:#7a3b8c}
+.corr-q2-list{list-style:none;padding:0;margin:0}
+.corr-q2-list li{font-size:11.5px;line-height:1.55;color:#3a3a38;padding:3px 0 3px 14px;position:relative}
+.corr-q2-list li::before{content:"•";position:absolute;left:3px;font-weight:700}
+.corr-q2-col.plus .corr-q2-list li::before{color:#2c7a50}
+.corr-q2-col.minus .corr-q2-list li::before{color:#7a3b8c}
+
+.corr-q34-verdict{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:14px;font-size:11.5px;font-weight:700;margin-bottom:9px;font-family:Georgia,serif}
+.corr-q34-verdict.yes{background:#2c7a50;color:white}
+.corr-q34-verdict.no{background:#7a3b8c;color:white}
+.corr-q34-verdict.partial{background:#d4a045;color:white}
+.corr-q34-text{font-size:12px;color:#3a3a38;line-height:1.6;background:white;padding:10px 13px;border-radius:7px;border:0.5px solid #e0e4e0}
+
+/* VALIDATE BUTTON */
+.actions{display:flex;justify-content:center;gap:10px;margin:1.25rem 0;flex-wrap:wrap}
+.btn-primary{background:#2c7a50;color:white;border:none;border-radius:8px;padding:11px 24px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover:not(:disabled){background:#237040;transform:translateY(-1px)}
+.btn-primary:disabled{background:#bbb;cursor:not-allowed;transform:none}
+.btn-secondary{background:white;color:#5a6661;border:1px solid #c8dfd2;border-radius:8px;padding:11px 18px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-secondary:hover{background:#f4faf7;border-color:#2c7a50;color:#2c7a50}
+.validate-hint{text-align:center;font-size:11px;color:#888;font-style:italic;margin-top:4px}
+
+.foot{font-size:11px;color:#888;text-align:center;font-style:italic;margin-top:1rem}
+
+/* ANTI-COPIE */
+html,body{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input,textarea{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text}
+img,.qcard-head,.intro-context,.audio-notice,.correction{-webkit-user-drag:none;user-drag:none}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="top">
+  <img src="data:image/png;base64,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" alt="TMK Performances" style="height:36px;width:auto">
+  <span class="tag-rcad">Exercice d'analyse · Appel entrant</span>
+</div>
+
+<!-- INTRO -->
+<div class="intro">
+  <div class="intro-title">🎧 Analyse d'un appel entrant — Achat d'un fer à repasser</div>
+  <div class="intro-sub">Une cliente appelle pour acheter un nouveau fer à repasser. Vous venez d'écouter l'enregistrement de l'échange entre elle et la téléconseillère. À vous d'analyser la qualité de cet échange et de la vente réalisée.</div>
+  <div class="intro-context">
+    Pour vous aider, gardez en tête la structure type d'un appel entrant : <strong>accueil</strong>, <strong>découverte du besoin</strong>, <strong>reformulation</strong>, <strong>argumentation</strong>, <strong>engagement</strong>, <strong>vente additionnelle ou au rebond</strong>, <strong>prise de congé</strong>.
+  </div>
+</div>
+
+<!-- AUDIO NOTICE -->
+<div class="audio-notice">
+  <div class="audio-notice-icon">🎧</div>
+  <div class="audio-notice-text"><strong>Pré-requis :</strong> vous avez bien écouté l'enregistrement complet de l'appel avant de répondre aux questions ci-dessous.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- Q1 — STRUCTURE DE L'APPEL                                -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="qcard" id="q1card">
+  <div class="qcard-head">
+    <div class="qcard-num">1</div>
+    <div class="qcard-title">La structure de l'appel a-t-elle été respectée ?</div>
+  </div>
+  <div class="qcard-body">
+    <div class="q1-intro">Pour chaque étape que vous identifiez dans l'appel : <strong>nommez-la dans le champ titre</strong>, puis citez la phrase prononcée par la téléconseillère. Si une étape n'a pas été respectée, cliquez sur <strong>« ✗ Marquer KO »</strong>. Vous pouvez ajouter ou retirer des lignes selon votre analyse.</div>
+    <div id="q1Steps"></div>
+
+    <!-- CORRECTION Q1 -->
+    <div class="correction" id="corr-q1">
+      <div class="correction-head">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2 7 5.5 10.5 12 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Correction type — Structure attendue
+      </div>
+      <div class="correction-body" id="corr-q1-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- Q2 — POINTS FORTS / POINTS FAIBLES                       -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="qcard" id="q2card">
+  <div class="qcard-head">
+    <div class="qcard-num">2</div>
+    <div class="qcard-title">Les points forts et les points faibles de la téléconseillère</div>
+  </div>
+  <div class="qcard-body">
+    <div class="q2-table">
+      <div class="q2-col plus">
+        <div class="q2-col-head">
+          <div class="q2-symbol">+</div>
+          <div class="q2-col-title">Points forts</div>
+        </div>
+        <div id="q2Plus"></div>
+      </div>
+      <div class="q2-col minus">
+        <div class="q2-col-head">
+          <div class="q2-symbol">−</div>
+          <div class="q2-col-title">Points faibles</div>
+        </div>
+        <div id="q2Minus"></div>
+      </div>
+    </div>
+
+    <!-- CORRECTION Q2 -->
+    <div class="correction" id="corr-q2">
+      <div class="correction-head">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2 7 5.5 10.5 12 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Correction type — Analyse +/−
+      </div>
+      <div class="correction-body" id="corr-q2-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- Q3 — VENTE RATÉE ?                                       -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="qcard" id="q3card">
+  <div class="qcard-head">
+    <div class="qcard-num">3</div>
+    <div class="qcard-title">La téléconseillère a-t-elle raté sa vente ?</div>
+  </div>
+  <div class="qcard-body">
+    <div class="q34-choice">
+      <div class="q34-pill" data-q="q3" data-choice="yes" onclick="setChoice('q3','yes')">
+        <span>Oui, elle a raté la vente</span>
+      </div>
+      <div class="q34-pill" data-q="q3" data-choice="no" onclick="setChoice('q3','no')">
+        <span>Non, elle a réussi la vente</span>
+      </div>
+    </div>
+    <label class="q34-label">Pourquoi ? Justifiez votre réponse :</label>
+    <textarea class="q34-textarea" id="q3why" placeholder="Expliquez votre raisonnement…" oninput="setWhy('q3',this.value)"></textarea>
+
+    <!-- CORRECTION Q3 -->
+    <div class="correction" id="corr-q3">
+      <div class="correction-head">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2 7 5.5 10.5 12 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Correction type
+      </div>
+      <div class="correction-body" id="corr-q3-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- Q4 — LA CLIENTE RAPPELLERA-T-ELLE ?                      -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="qcard" id="q4card">
+  <div class="qcard-head">
+    <div class="qcard-num">4</div>
+    <div class="qcard-title">Selon vous, la cliente rappellera-t-elle ?</div>
+  </div>
+  <div class="qcard-body">
+    <div class="q34-choice">
+      <div class="q34-pill" data-q="q4" data-choice="yes" onclick="setChoice('q4','yes')">
+        <span>Oui, elle rappellera</span>
+      </div>
+      <div class="q34-pill" data-q="q4" data-choice="no" onclick="setChoice('q4','no')">
+        <span>Non, elle ne rappellera pas</span>
+      </div>
+    </div>
+    <label class="q34-label">Pourquoi ? Justifiez votre réponse :</label>
+    <textarea class="q34-textarea" id="q4why" placeholder="Expliquez votre raisonnement…" oninput="setWhy('q4',this.value)"></textarea>
+
+    <!-- CORRECTION Q4 -->
+    <div class="correction" id="corr-q4">
+      <div class="correction-head">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2 7 5.5 10.5 12 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Correction type
+      </div>
+      <div class="correction-body" id="corr-q4-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+  <button class="btn-primary" id="btnValidate" onclick="validateAll()" disabled>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2 7 5.5 10.5 12 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Valider mon analyse
+  </button>
+  <button class="btn-secondary" onclick="resetExo()">↻ Recommencer</button>
+</div>
+<div class="validate-hint" id="validateHint">Choisissez une réponse aux questions 3 et 4 pour pouvoir valider.</div>
+
+<div class="foot">TMK PERFORMANCES — Analyse d'appel : structure, points forts/faibles, vente, fidélisation</div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   DONNÉES — Étapes de l'appel + corrections
+   ════════════════════════════════════════════════════════════ */
+const STEPS = [
+  { id: "accueil",       name: "Accueil & présentation",
+    desc: "La conseillère se présente (société + prénom) et invite la cliente à exprimer son besoin." },
+  { id: "decouverte",    name: "Découverte du besoin",
+    desc: "Questions ouvertes pour cerner le besoin réel (usage, fréquence, attentes, budget…)." },
+  { id: "reformulation", name: "Reformulation",
+    desc: "« Si je comprends bien, vous cherchez… » — confirmation de la bonne compréhension." },
+  { id: "argumentation", name: "Argumentation / Proposition",
+    desc: "Présentation du produit retenu avec un véritable CABP (Caractéristique, Avantage, Bénéfice, Preuve)." },
+  { id: "engagement",    name: "Engagement & conclusion",
+    desc: "Demande explicite d'accord et finalisation de la vente principale." },
+  { id: "va_vr",         name: "Vente additionnelle ou au rebond",
+    desc: "Proposition d'un produit complémentaire (semelle, eau, table à repasser…) ou d'une offre commerciale." },
+  { id: "conge",         name: "Prise de congé",
+    desc: "Remerciements au nom de l'équipe, vœux d'une agréable journée — clôture chaleureuse." },
+];
+
+const CORRECTIONS = {
+  q1: {
+    intro: "Voici, étape par étape, ce qu'une conseillère devrait faire — et ce que Sylvie Carlier a réellement fait dans l'enregistrement. Comparez avec votre analyse.",
+    steps: {
+      accueil: {
+        expected: "« Bonjour Madame / Monsieur, Sylvie Carlier d'euroshopping.fr à votre service, en quoi puis-je vous aider ? »",
+        actual: "« Bonjour, Sylvie Carlier du site euroshopping.fr, je vous écoute. »",
+        verdict: "okr",
+        note: "Présentation correcte (prénom + nom + site). Mais « Je vous écoute » est moins engageant que « En quoi puis-je vous aider ? », et il manque le « Bonjour Madame » en retour quand la cliente prend la parole."
+      },
+      decouverte: {
+        expected: "« Pour bien vous conseiller : quel usage faites-vous de votre fer ? Combien de personnes dans votre foyer ? Quels types de linge repassez-vous le plus souvent ? Avez-vous un budget en tête ? »",
+        actual: "Aucune question de découverte en début d'appel. La conseillère propose directement le Philips 2400 W sans avoir cerné le besoin.",
+        verdict: "ko",
+        note: "Pire : à la fin de l'appel elle finit par demander « Je ne sais pas si vous avez une famille, si vous avez beaucoup de linge à repasser » — alors que la cliente l'avait déjà dit dès le début (« j'ai toujours beaucoup de linge à repasser »). Preuve qu'elle n'a pas écouté."
+      },
+      reformulation: {
+        expected: "« Si je comprends bien, vous cherchez un fer puissant et fiable, pour un usage quotidien avec beaucoup de linge à cause de votre famille. C'est bien cela ? »",
+        actual: "Aucune reformulation à aucun moment de l'appel.",
+        verdict: "ko",
+        note: "Conséquence directe du défaut de découverte : la conseillère propose à l'aveugle et change de produit deux fois en cours d'appel (Philips → Rowenta → générateur Calor)."
+      },
+      argumentation: {
+        expected: "Présenter UN produit adapté au besoin réel, en CABP : caractéristique → avantage → bénéfice pour LA CLIENTE → preuve.",
+        actual: "« La puissance s'élève à 2400 watts et vous pouvez produire 40 g de vapeur par minute… La semelle carezza ne collera jamais au vêtement… » Argumentation centrée sur la fiche technique.",
+        verdict: "okr",
+        note: "Bonne connaissance produit, quelques bénéfices esquissés (le veston, la chemise sur cintre). Mais le tout reste très technique (watts, grammes, bars) et la conseillère présente trois produits successifs sans laisser la cliente choisir."
+      },
+      engagement: {
+        expected: "« Cela vous convient-il ? Je vous l'enregistre ? » — demander explicitement l'accord pour conclure la vente principale.",
+        actual: "Aucun engagement demandé à aucun moment de l'échange.",
+        verdict: "ko",
+        note: "C'est l'erreur la plus coûteuse de tout l'appel. La conseillère ne « ferme » jamais la vente, ce qui laisse à la cliente le réflexe naturel de reporter la décision."
+      },
+      va_vr: {
+        expected: "« Pour préserver votre fer, vous avez ce qu'il faut en eau déminéralisée ? Et votre table à repasser, est-elle adaptée à un générateur de vapeur ? »",
+        actual: "Aucune vente additionnelle proposée.",
+        verdict: "ko",
+        note: "Opportunités évidentes ratées : eau déminéralisée, table à repasser adaptée à un générateur, housse de table, anti-calcaire. Pour un panier qui aurait pu être à 180 €, on aurait facilement ajouté 30 à 50 € de VA."
+      },
+      conge: {
+        expected: "« L'équipe euroshopping.fr et moi-même vous remercions. À quel moment puis-je vous rappeler pour faire le point ? Excellente journée Madame, à très bientôt ! »",
+        actual: "« Très bien Madame. N'hésitez pas à nous rappeler pour plus d'informations. Merci, Madame. Au revoir, Madame. »",
+        verdict: "okr",
+        note: "Polie mais expéditive. Pas de remerciement au nom de l'équipe. Surtout : pas de cadre temporel proposé pour le rappel (« quand vous rappelle-t-on ? ») — l'initiative est laissée 100 % à la cliente, qui va comparer ailleurs entre-temps."
+      },
+    }
+  },
+
+  q2: {
+    intro: "Voici les points forts et points faibles attendus pour cet échange précis. Votre liste peut être plus courte ou plus longue — l'essentiel est d'avoir vu les éléments critiques.",
+    plus: [
+      "Présentation rapide et claire (prénom + nom + site)",
+      "Bonne connaissance technique des trois produits présentés",
+      "Capacité à comparer les modèles entre eux (Philips vs Rowenta vs Calor)",
+      "Réactivité quand le besoin évolue (passe du Philips au générateur quand la cliente parle de sa famille)",
+      "Argumentation chiffrée et précise (watts, g de vapeur, bars)",
+      "Propose une ressource utile en fin d'appel : la vidéo tutoriel",
+      "Ton courtois tout au long de l'échange",
+    ],
+    minus: [
+      "Aucune découverte du besoin en début d'appel — propose un produit avant de comprendre la cliente",
+      "Pose une question sur la famille très tard, ALORS QUE la cliente avait déjà donné l'information au début → la conseillère n'a pas écouté",
+      "Aucune reformulation à aucun moment",
+      "Argumentation purement technique (watts, grammes, bars), peu de bénéfices client formulés en « vous »",
+      "Change deux fois de produit en cours d'appel sans terminer le précédent (Philips → Rowenta → Calor)",
+      "AUCUN engagement demandé pour conclure la vente — la question « Je vous l'enregistre ? » n'est jamais posée",
+      "AUCUNE vente additionnelle proposée (eau déminéralisée, table à repasser, housse, anti-calcaire)",
+      "Prise de congé sans cadre temporel pour le rappel — l'initiative est laissée à la cliente",
+    ],
+  },
+
+  q3: {
+    verdict: "yes",
+    verdictLabel: "Oui, totalement",
+    text: "La vente est <strong>complètement ratée</strong> : la cliente termine l'appel sans avoir commandé aucun produit. Elle dit simplement « je vais regarder ça avec mon mari et je vous rappelle ».<br><br>Les causes sont en chaîne :<br>• <strong>Pas de découverte du besoin</strong> en amont → la conseillère propose un Philips à l'aveugle, puis comprend trop tard la situation familiale et bascule sur un générateur à 180 € ;<br>• <strong>Aucun engagement demandé</strong> à aucun moment → la question « Je vous l'enregistre ? » n'est jamais posée, ce qui laisse à la cliente le réflexe naturel de reporter ;<br>• <strong>Aucune vente additionnelle</strong> proposée → eau déminéralisée, table à repasser, housse… toutes les opportunités sont passées à côté.<br><br>Au final : <strong>ni vente principale, ni vente additionnelle</strong>. 100 % du chiffre d'affaires potentiel de cet appel est perdu."
+  },
+
+  q4: {
+    verdict: "no",
+    verdictLabel: "Probablement non",
+    text: "La cliente a dit « je vous rappelle », mais cette formule est dans la plupart des cas un <strong>« non poli »</strong>. Plusieurs signaux le confirment :<br><br>• Elle n'a été ni véritablement écoutée, ni reformulée → rien ne l'attache à cette conseillère ou à euroshopping.fr ;<br>• <strong>Aucun cadre temporel</strong> n'a été posé pour le rappel (« à quel moment puis-je vous rappeler ? ») → la balle est dans son camp ;<br>• L'argument « j'en parle à mon mari » sert très souvent à clore poliment un échange qui n'a pas convaincu ;<br>• Elle a maintenant un nom de produit (Calor générateur de vapeur) qu'elle peut comparer en quelques clics sur d'autres sites — et trouver moins cher.<br><br>Ce qu'aurait dû faire la conseillère : <em>« Très bien Madame, je note votre intérêt pour le Calor. La session vidéo est à 10 h — je vous rappelle à 11 h pour répondre à vos questions, est-ce que cela vous convient ? »</em><br><br>Sans cette reprise d'initiative, la <strong>cliente est perdue dès qu'elle raccroche</strong>."
+  },
+};
+
+/* ════════════════════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════════════════════ */
+const state = {
+  q1: [
+    { name: "", phrase: "", ko: false },
+    { name: "", phrase: "", ko: false },
+    { name: "", phrase: "", ko: false },
+    { name: "", phrase: "", ko: false },
+    { name: "", phrase: "", ko: false },
+  ],
+  q2: { plus: ["", ""], minus: ["", ""] },
+  q3: { choice: null, why: "" },
+  q4: { choice: null, why: "" },
+  validated: false,
+};
+
+/* ════════════════════════════════════════════════════════════
+   RENDU — Q1
+   ════════════════════════════════════════════════════════════ */
+function renderQ1() {
+  const container = document.getElementById("q1Steps");
+  let html = "";
+  state.q1.forEach((d, i) => {
+    html += `
+      <div class="q1-step ${d.ko?'ko':''}">
+        <div class="q1-step-head">
+          <div class="q1-step-num">${i+1}</div>
+          <input class="q1-name-input" type="text"
+                 placeholder="Nommez cette étape de l'appel…"
+                 value="${escapeAttr(d.name)}"
+                 oninput="updateQ1Name(${i},this.value)">
+          <button class="q1-ko-btn" onclick="toggleKO(${i})">${d.ko ? '↻ Annuler KO' : '✗ Marquer KO'}</button>
+          ${state.q1.length > 1 ? `<button class="remove-btn" onclick="removeQ1(${i})" title="Supprimer cette ligne">×</button>` : ''}
+        </div>
+        <textarea class="q1-textarea"
+                  placeholder="« Citez la phrase prononcée par la téléconseillère pour cette étape… »"
+                  oninput="updateQ1Phrase(${i},this.value)">${escapeHtml(d.phrase)}</textarea>
+      </div>`;
+  });
+  html += `<button class="add-btn" onclick="addQ1Step()">+ Ajouter une étape</button>`;
+  container.innerHTML = html;
+}
+
+function addQ1Step() {
+  if (state.validated) return;
+  state.q1.push({ name: "", phrase: "", ko: false });
+  renderQ1();
+}
+
+function removeQ1(idx) {
+  if (state.validated) return;
+  if (state.q1.length <= 1) return;
+  state.q1.splice(idx, 1);
+  renderQ1();
+}
+
+function updateQ1Name(idx, value) {
+  state.q1[idx].name = value;
+}
+
+function updateQ1Phrase(idx, value) {
+  state.q1[idx].phrase = value;
+}
+
+function toggleKO(idx) {
+  if (state.validated) return;
+  const d = state.q1[idx];
+  d.ko = !d.ko;
+  if (d.ko) {
+    d.phrase = "ko";
+  } else if (d.phrase === "ko") {
+    d.phrase = "";
+  }
+  renderQ1();
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDU — Q2
+   ════════════════════════════════════════════════════════════ */
+function renderQ2() {
+  ['plus','minus'].forEach(kind => {
+    const container = document.getElementById(kind === 'plus' ? 'q2Plus' : 'q2Minus');
+    let html = "";
+    state.q2[kind].forEach((val, i) => {
+      html += `
+        <div class="q2-row">
+          <div class="q2-row-num">${i+1}</div>
+          <input class="q2-input" type="text"
+                 placeholder="${kind === 'plus' ? 'Point fort' : 'Point faible'}…"
+                 value="${escapeAttr(val)}"
+                 oninput="updateQ2('${kind}',${i},this.value)">
+          ${state.q2[kind].length > 1 ? `<button class="remove-btn" onclick="removeQ2('${kind}',${i})" title="Supprimer">×</button>` : ''}
+        </div>`;
+    });
+    html += `<button class="add-btn" onclick="addQ2('${kind}')">+ Ajouter ${kind === 'plus' ? 'un point fort' : 'un point faible'}</button>`;
+    container.innerHTML = html;
+  });
+}
+
+function updateQ2(kind, idx, value) {
+  state.q2[kind][idx] = value;
+}
+
+function addQ2(kind) {
+  if (state.validated) return;
+  state.q2[kind].push("");
+  renderQ2();
+}
+
+function removeQ2(kind, idx) {
+  if (state.validated) return;
+  if (state.q2[kind].length <= 1) return;
+  state.q2[kind].splice(idx, 1);
+  renderQ2();
+}
+
+/* ════════════════════════════════════════════════════════════
+   Q3 & Q4
+   ════════════════════════════════════════════════════════════ */
+function setChoice(q, choice) {
+  if (state.validated) return;
+  state[q].choice = choice;
+  document.querySelectorAll(`.q34-pill[data-q="${q}"]`).forEach(pill => {
+    pill.classList.remove('selected','yes','no');
+    if (pill.dataset.choice === choice) {
+      pill.classList.add('selected', choice);
+    }
+  });
+  updateValidateState();
+}
+
+function setWhy(q, value) {
+  state[q].why = value;
+}
+
+/* ════════════════════════════════════════════════════════════
+   VALIDATION
+   ════════════════════════════════════════════════════════════ */
+function updateValidateState() {
+  const ready = state.q3.choice && state.q4.choice;
+  const btn = document.getElementById("btnValidate");
+  const hint = document.getElementById("validateHint");
+  btn.disabled = !ready;
+  hint.style.display = ready ? "none" : "block";
+}
+
+function validateAll() {
+  if (state.validated) return;
+  state.validated = true;
+  document.querySelectorAll('.qcard').forEach(c => c.classList.add('validated'));
+  renderCorrections();
+  // Hide buttons
+  document.querySelector('.actions').style.display = 'none';
+  document.getElementById('validateHint').style.display = 'none';
+  // Show reset only
+  setTimeout(() => {
+    const a = document.createElement('div');
+    a.className = 'actions';
+    a.innerHTML = '<button class="btn-secondary" onclick="resetExo()">↻ Recommencer l\'exercice</button>';
+    document.querySelector('.foot').parentNode.insertBefore(a, document.querySelector('.foot'));
+  }, 100);
+  // Scroll to Q1 correction
+  setTimeout(() => {
+    document.getElementById('corr-q1').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 200);
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDU — Corrections
+   ════════════════════════════════════════════════════════════ */
+function renderCorrections() {
+  // Q1
+  const VERDICTS = {
+    ok:  { label: "✓ Respecté",       cls: "ok" },
+    okr: { label: "△ Avec réserves",   cls: "okr" },
+    ko:  { label: "✗ Non respecté",   cls: "ko" },
+  };
+  let h1 = `<div class="corr-intro">${escapeHtml(CORRECTIONS.q1.intro)}</div>`;
+  STEPS.forEach((s, i) => {
+    const c = CORRECTIONS.q1.steps[s.id];
+    const v = VERDICTS[c.verdict] || VERDICTS.ko;
+    h1 += `
+      <div class="corr-q1-step">
+        <div class="corr-q1-step-head">
+          <div class="corr-q1-step-num">${i+1}</div>
+          <div class="corr-q1-step-name">${s.name}</div>
+          <div class="corr-q1-verdict ${v.cls}">${v.label}</div>
+        </div>
+        <div class="corr-q1-block">
+          <div class="corr-q1-block-label">💡 Ce qu'elle aurait dû dire</div>
+          <div class="corr-q1-block-text expected">${escapeHtml(c.expected)}</div>
+        </div>
+        <div class="corr-q1-block">
+          <div class="corr-q1-block-label">🎧 Ce qu'elle a réellement fait</div>
+          <div class="corr-q1-block-text actual v-${c.verdict}">${escapeHtml(c.actual)}</div>
+        </div>
+        <div class="corr-q1-note">${escapeHtml(c.note)}</div>
+      </div>`;
+  });
+  document.getElementById("corr-q1-body").innerHTML = h1;
+
+  // Q2
+  let h2 = `<div class="corr-intro">${escapeHtml(CORRECTIONS.q2.intro)}</div>`;
+  h2 += `<div class="corr-q2-table">
+    <div class="corr-q2-col plus">
+      <div class="corr-q2-col-title">+ Points forts</div>
+      <ul class="corr-q2-list">${CORRECTIONS.q2.plus.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+    </div>
+    <div class="corr-q2-col minus">
+      <div class="corr-q2-col-title">− Points faibles</div>
+      <ul class="corr-q2-list">${CORRECTIONS.q2.minus.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+    </div>
+  </div>`;
+  document.getElementById("corr-q2-body").innerHTML = h2;
+
+  // Q3
+  const q3v = CORRECTIONS.q3.verdict;
+  document.getElementById("corr-q3-body").innerHTML = `
+    <span class="corr-q34-verdict ${q3v}">${escapeHtml(CORRECTIONS.q3.verdictLabel)}</span>
+    <div class="corr-q34-text">${CORRECTIONS.q3.text}</div>`;
+
+  // Q4
+  const q4v = CORRECTIONS.q4.verdict;
+  document.getElementById("corr-q4-body").innerHTML = `
+    <span class="corr-q34-verdict ${q4v}">${escapeHtml(CORRECTIONS.q4.verdictLabel)}</span>
+    <div class="corr-q34-text">${CORRECTIONS.q4.text}</div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   UTILS
+   ════════════════════════════════════════════════════════════ */
+function escapeHtml(s) {
+  return (s || "").toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+function resetExo() {
+  if (!confirm("Recommencer l'exercice ? Toutes vos réponses seront effacées.")) return;
+  location.reload();
+}
+
+/* ════════════════════════════════════════════════════════════
+   ANTI-COPIE
+   ════════════════════════════════════════════════════════════ */
+function isField(t) { return t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT"); }
+document.addEventListener("selectstart", e => { if (!isField(e.target)) e.preventDefault(); });
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("dragstart", e => { if (!isField(e.target)) e.preventDefault(); });
+
+/* INIT */
+renderQ1();
+renderQ2();
+updateValidateState();
+</script>
+</body>
+</html>
